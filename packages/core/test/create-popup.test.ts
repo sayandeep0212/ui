@@ -306,7 +306,7 @@ describe("a popup animating out", () => {
     }
   )
 
-  test("a modal dialog swallows a press on its backdrop, so it never reaches the page", async () => {
+  test("a modal dialog lets a press on its backdrop reach the page while animating out", async () => {
     const view = mount(dialog, { modal: true }, backdropMarkup)
     mounts.push(view)
     await view.click(view.part("trigger")!)
@@ -319,7 +319,7 @@ describe("a popup animating out", () => {
     const after = outsideButton(view.root)
     expect(
       await pressOn(view, place(after, new DOMRect(50, 50, 20, 20)))
-    ).toEqual(["pointerdown prevented"])
+    ).toEqual(["pointerdown", "click"])
     expect(
       await pressOn(view, place(after, new DOMRect(350, 350, 20, 20)))
     ).toEqual(["pointerdown", "click"])

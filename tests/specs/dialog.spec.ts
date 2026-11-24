@@ -647,7 +647,7 @@ test.describe("presses", () => {
     await expect(page.getByRole("button", { name: "Advanced" })).toBeFocused()
   })
 
-  test("while the dialog animates out, a press on its backdrop doesn't reach the page", async ({
+  test("while the dialog animates out, a press on its backdrop reaches the page", async ({
     page,
     open,
   }) => {
@@ -675,7 +675,37 @@ test.describe("presses", () => {
     await page.keyboard.press("Escape")
     await expect(page.locator(".dialog[data-ending-style]")).toHaveCount(1)
     await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
-    await expect(after).not.toHaveAttribute("data-clicked")
+    await expect(after).toHaveAttribute("data-clicked", "")
+  })
+
+  test("while the dialog animates out, a press on the page reaches the page when closed from a close button", async ({
+    page,
+    open,
+  }) => {
+    await open("dialog", { animate: "" })
+    await page.addStyleTag({
+      content:
+        ".dialog, .dialog-backdrop { transition-duration: 3s !important }",
+    })
+    const after = outside(page, "After")
+    await after.evaluate((el) =>
+      el.addEventListener("click", () => (el.dataset.clicked = ""))
+    )
+    const box = (await after.boundingBox())!
+    await openWithKeyboard(page)
+    await expect
+      .poll(() =>
+        dialog(page).evaluate(
+          (el) =>
+            !el.hasAttribute("data-starting-style") &&
+            !el.getAnimations().length
+        )
+      )
+      .toBe(true)
+    await page.getByRole("button", { name: "Close" }).click()
+    await expect(page.locator(".dialog[data-ending-style]")).toHaveCount(1)
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+    await expect(after).toHaveAttribute("data-clicked", "")
   })
 
   test("Escape right after opening a nested dialog closes only the nested one", async ({

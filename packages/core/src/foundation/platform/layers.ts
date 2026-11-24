@@ -13,11 +13,8 @@ type Layer = {
   // False once the layer starts to close. Closed layers ignore dismissal.
   active: () => boolean
   // True while the layer animates out. It's inert then, so presses fall through
-  // it to the page. A modal one swallows those on its backdrop, so a double
-  // click that dismissed it can't land on the page, and shields the layers beneath it.
+  // it to the page.
   exiting?: () => boolean
-  // Whether a point is on the layer's backdrop, outside its popup.
-  overBackdrop?: (x: number, y: number) => boolean
   // "pointer" and true consume the outside press, so it only closes the layer.
   modal: boolean | "pointer"
   // When an outside press dismisses: at "pointerdown", or at "click", once the
@@ -252,13 +249,6 @@ function listen(doc: Document, win: Window) {
         if (insideTree(layer, target, event)) {
           break
         }
-        if (layer.modal === false) {
-          continue
-        }
-        if (layer.overBackdrop?.(point.x, point.y)) {
-          consume = true
-        }
-        break
       }
     }
     return { dismissed, consume }

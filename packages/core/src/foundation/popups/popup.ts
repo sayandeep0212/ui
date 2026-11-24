@@ -1158,10 +1158,6 @@ function createPopupLayer<
         (options.contains
           ? options.contains(target, event)
           : !!options.trigger()?.contains(target)),
-      overBackdrop: (x, y) =>
-        !!shown?.backdrop &&
-        !outsideBox({ x, y }, shown.backdrop.getBoundingClientRect()) &&
-        outsideBox({ x, y }, el.getBoundingClientRect()),
       returnTarget,
       onOutsidePress: (event) => {
         const target = event.composedPath()[0] as Element | undefined
